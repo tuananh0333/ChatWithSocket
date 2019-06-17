@@ -5,10 +5,6 @@ import java.util.*;
 import java.net.*;
 
 public class ChatServer {
-	public static String LOG_OUT = "exit";
-	public static String HAVE_LOGED_IN = "loged";
-	public static String NEW_USER_LOGED = "new";
-
 	List<HandleClient> clients;
 	private ServerSocket server;
 
@@ -25,12 +21,23 @@ public class ChatServer {
 		}
 		for (HandleClient c : clients) {
 			if (c.getRoomName().equals(client.getRoomName())) {
-				c.sendAlert(NEW_USER_LOGED);
+				c.sendAlert(Constants.NEW_USER_LOGED);
 				c.sendAlert(Integer.toString(countInRoom));
 				for(HandleClient hc : clients) {
 					if (hc.getRoomName().equals(client.getRoomName())) {
 						c.sendAlert(hc.getUserName());
 					}
+				}
+			}
+		}
+	}
+
+	public void broadcast(String user, String room, String message) {
+		// send message to all connected users
+		for (HandleClient c : clients) {
+			if (c.getRoomName().equals(room)) {
+				if (!c.getUserName().equals(user)) {
+					c.sendMessage(user, message);
 				}
 			}
 		}
@@ -46,28 +53,17 @@ public class ChatServer {
 			updateUsersInRoom(newC);
 		}
 	}
-
+	
 	public static void main(String[] args) throws Exception {
 		new ChatServer().process();
-	}
-
-	public void broadcast(String user, String room, String message) {
-		// send message to all connected users
-		for (HandleClient c : clients) {
-			if (c.getRoomName().equals(room)) {
-				if (!c.getUserName().equals(user)) {
-					c.sendMessage(user, message);
-				}
-			}
-		}
 	}
 
 	/**
 	 * Inner class to handle each client
 	 */
 	class HandleClient extends Thread {
-		String name = "";
-		String room = "";
+		private String name = "";
+		private String room = "";
 
 		BufferedReader input;
 		PrintWriter output;
@@ -104,7 +100,7 @@ public class ChatServer {
 			try {
 				while (true) {
 					line = input.readLine();
-					if (line.equals(LOG_OUT)) {
+					if (line.equals(Constants.LOG_OUT)) {
 						clients.remove(this);
 						updateUsersInRoom(this);
 						break;
