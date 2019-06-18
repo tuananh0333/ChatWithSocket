@@ -80,42 +80,23 @@ public class ChatClient extends JFrame implements ActionListener {
 		messageBox.setLineWrap(true);
 		messageBox.setBackground(Color.WHITE);
 		
-		Dimension chatW = chatLayout.getSize();
-		System.out.println(chatW.width);
-		mess.setSize(chatW.width, mess.getMinimumSize().height);
-		
-		Double width = chatW.getWidth() * 0.6;
-		messageBox.setSize(width.intValue(), messageBox.getMinimumSize().height);
-		
 		mess.add(messageBox);
 
 		if (who.equals("me")) {
 			mess.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
 		}
-		
-//		mess.setPreferredSize(new Dimension(mess.getParent().getWidth(), mess.getMinimumSize().height));
-//		Double width = messageBox.getParent().getWidth() * 0.6;
-//		messageBox.setPreferredSize(new Dimension(width.intValue(), messageBox.getMinimumSize().height));
-		
-//		Dimension w = mess.getSize();
-//		System.out.println(w.width + "," + w.height);
-//		
-//		Dimension d = messageBox.getSize();
-//		System.out.println(d.width + ":" + d.height);
 
 		chatLayout.addComponentListener(new ComponentListener() {
-
 			@Override
 			public void componentShown(ComponentEvent e) {
 			}
 
+			//Resize when change window's size
 			@Override
 			public void componentResized(ComponentEvent e) {
 				mess.setPreferredSize(new Dimension(mess.getParent().getWidth(), mess.getMinimumSize().height));
 				Double width = messageBox.getParent().getWidth() * 0.6;
 				messageBox.setPreferredSize(new Dimension(width.intValue(), messageBox.getMinimumSize().height));
-				Dimension w = mess.getSize();
-				System.out.println(w.width + "/" + w.height);
 			}
 
 			@Override
@@ -128,6 +109,20 @@ public class ChatClient extends JFrame implements ActionListener {
 		});
 		
 		chatLayout.add(mess);
+		
+		//Set size when draw a message
+		//set messageBox size
+		Dimension chatW = chatLayout.getSize();
+		Double width = chatW.getWidth() * 0.6;
+		messageBox.setPreferredSize(new Dimension(width.intValue(), messageBox.getPreferredSize().height));
+		messageBox.setSize(messageBox.getPreferredSize());
+
+		//set message group size
+		mess.setPreferredSize(new Dimension(mess.getParent().getWidth(), mess.getMinimumSize().height));
+		mess.setSize(mess.getPreferredSize());
+		
+		int hei = chatLayout.getSize().height+messageBox.getSize().height+5;
+		chatLayout.setPreferredSize(new Dimension(chatLayout.getSize().width, hei));
 		
 		chatLayout.validate();
 		chatLayout.repaint();
@@ -166,24 +161,23 @@ public class ChatClient extends JFrame implements ActionListener {
 
 		// Messages
 		chatLayout.setBackground(Color.darkGray);
-
 		
-//		JScrollPane chatsc = new JScrollPane();
-////		chatsc.createVerticalScrollBar();
-//		chatsc.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-//		chatsc.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-//		JViewport chatView = new JViewport();
-//		chatView.setView(chatLayout);
-//		chatsc.setViewport(chatView);
-////		chatsc.setAutoscrolls(true);
+		JScrollPane chatsc = new JScrollPane(chatLayout);
+		chatsc.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
 		// add into JFrame
 		add(inputLayout, "South");
-		add(chatLayout, "Center");
 		add(roomLayout, "West");
-//		add(chatsc, "Center");
+		getContentPane().add(chatsc, "Center");
+		
 
 		setPreferredSize(new Dimension(800, 400));
+		
+		chatLayout.setPreferredSize(new Dimension(chatsc.getSize().width, chatLayout.getPreferredSize().height));
+		
+		System.out.println(chatLayout.getPreferredSize());
+		System.out.println(chatLayout.getSize());
+		
 		setVisible(true);
 		setLocationRelativeTo(null);
 		pack();
